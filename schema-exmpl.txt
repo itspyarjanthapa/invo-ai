@@ -1,0 +1,80 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  
+  clients   Client[]
+  invoices  Invoice[]
+  proposals Proposal[]
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  email     String
+  company   String?
+  address   String?
+  phone     String?
+  createdAt DateTime @default(now())
+  
+  invoices  Invoice[]
+  proposals Proposal[]
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  invoiceNo String   @unique
+  issueDate DateTime @default(now())
+  dueDate   DateTime
+  status    String   @default("DRAFT")
+  subtotal  Float
+  tax       Float    @default(0)
+  total     Float
+  createdAt DateTime @default(now())
+  
+  lineItems InvoiceLineItem[]
+}
+
+model InvoiceLineItem {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
+  description String
+  quantity    Int
+  unitPrice   Float
+  total       Float
+  createdAt   DateTime @default(now())
+}
+
+model Proposal {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id])
+  title       String
+  proposalNo  String   @unique
+  status      String   @default("DRAFT")
+  validUntil  DateTime
+  content     Json
+  totalAmount Float
+  createdAt   DateTime @default(now())
+}
+EOF

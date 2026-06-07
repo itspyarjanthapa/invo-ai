@@ -7,15 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:studio": "yarn prisma studio",
-    "db:migrate": "yarn prisma migrate dev --name",
+    "db:migrate": "yarn prisma migrate dev",
     "db:reset": "docker compose down -v && docker compose up -d && yarn prisma migrate dev --name init",
     "db:generate": "yarn prisma generate"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.4.3",
     "@prisma/client": "^7.8.0",
     "next": "16.2.7",
     "react": "19.2.4",
