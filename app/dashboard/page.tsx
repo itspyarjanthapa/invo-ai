@@ -1,8 +1,33 @@
 import { UserButton } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
 
 export default async function DashboardPage() {
-    const {userId} = await auth()
+    const { userId } = await auth();
+
+    if (userId) {
+        // Query to check if the user is in our database
+        const dbUser = await prisma.user.findUnique({
+            where: { clerkId: userId },
+        });
+
+        if (!dbUser) {
+            const userFromClerk = await currentUser();
+            if (userFromClerk) {
+                const email = userFromClerk.emailAddresses[0]?.emailAddress || '';
+                const name = `${userFromClerk.firstName || ''} ${userFromClerk.lastName || ''}`.trim();
+                
+                await prisma.user.create({
+                    data: {
+                        clerkId: userId,
+                        email: email,
+                        name: name || null,
+                    },
+                });
+                console.log('✅ User successfully synced on dashboard visit:', email);
+            }
+        }
+    }
 
     return(
         <div className="min-h-screen bg-gray-100 text-black">
