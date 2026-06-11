@@ -1,6 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import ClientsForm from "./components/clients";
 
 export default async function DashboardPage() {
     const { userId } = await auth();
@@ -28,6 +29,7 @@ export default async function DashboardPage() {
             }
         }
     }
+
 
     return(
         <div className="min-h-screen bg-gray-100 text-black">
@@ -61,6 +63,8 @@ export default async function DashboardPage() {
             <p>Sent this month</p>
           </div>
         </div>
+
+       <ClientsForm/>
       </main>
     </div>
     )

@@ -6,13 +6,17 @@ datasource db {
   provider = "postgresql"
 }
 
+
 model user {
   id        String   @id @default(cuid())
   email     String   @unique
   createdAt DateTime @default(now())
   name      String?
   clerkId   String   @unique
+  
   clients   client[]
+  invoices  invoice[]
+  proposals proposal[]
 }
 
 model client {
@@ -24,5 +28,54 @@ model client {
   address   String?
   phone     String?
   createdAt DateTime @default(now())
+  
   user      user     @relation(fields: [userId], references: [id])
+  invoices  invoice[]
+  proposals proposal[]
+}
+
+model invoice {
+  id        String   @id @default(cuid())
+  userId    String
+  clientId  String
+  invoiceNo String   @unique
+  issueDate DateTime @default(now())
+  dueDate   DateTime
+  status    String   @default("DRAFT")
+  subtotal  Float
+  tax       Float    @default(0)
+  total     Float
+  createdAt DateTime @default(now())
+  
+  user      user             @relation(fields: [userId], references: [id])
+  client    client           @relation(fields: [clientId], references: [id])
+  lineItems InvoiceLineItem[]
+}
+
+model InvoiceLineItem {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  description String
+  quantity    Int
+  unitPrice   Float
+  total       Float
+  createdAt   DateTime @default(now())
+  
+  invoice invoice @relation(fields: [invoiceId], references: [id])
+}
+
+model proposal {
+  id          String   @id @default(cuid())
+  userId      String
+  clientId    String
+  title       String
+  proposalNo  String   @unique
+  status      String   @default("DRAFT")
+  validUntil  DateTime
+  content     Json
+  totalAmount Float
+  createdAt   DateTime @default(now())
+  
+  user   user   @relation(fields: [userId], references: [id])
+  client client @relation(fields: [clientId], references: [id])
 }
